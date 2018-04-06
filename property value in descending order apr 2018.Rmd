@@ -1,0 +1,102 @@
+---
+title: "Property Value in USD MI data April 2018"
+output: html_notebook
+
+---
+
+Based on MI data at this page http://data.miningintelligence.com/property/browsesearch.aspx?vt=84&st=ResorValTotDesc
+
+Get the property values and the property details table. 
+
+
+ 
+```{r}
+
+library(readr)
+library(tidyverse)
+
+
+properties_value <- read_csv("~/properties-resources value-report-michael-mccrae-20180406121215.csv")
+View(properties_resources_value_report_michael_mccrae_20180406121215)
+
+properties_overview <- read_csv("~/properties-overview-report-michael-mccrae-20180406122417.csv")
+View(properties_overview_report_michael_mccrae_20180406122417)
+
+properties_ownership <- read_csv("~/properties-ownership-report-michael-mccrae-20180406122624.csv")
+
+head(properties_overview)
+
+head(properties_value)
+
+
+
+```
+ 
+
+
+Let's do some joining!
+
+I will make the properties_value primary. 
+
+
+```{r}
+
+joined_properties_value2 <- properties_value %>% inner_join(properties_overview, by="PropertyID")
+
+View(joined_properties_value2)
+
+```
+
+
+Let's look at what we got. What's the most valuable. 
+
+```{r}
+
+joined3 <- joined_properties_value2 %>% select(Property.x, Country, PrimaryCommodity, ActivityStatus, TotalValueBUSD) %>% filter(ActivityStatus=="Feasibility") %>% filter(TotalValueBUSD>2000) %>% arrange(desc(TotalValueBUSD))
+
+joined3
+
+
+
+```
+
+
+Now let's do some charts using joined3
+
+```{r}
+
+ggplot(joined3, aes(x=reorder(Property.x,TotalValueBUSD), y=TotalValueBUSD, fill=PrimaryCommodity)) +
+  geom_bar(stat="identity") +
+  coord_flip()
+
+
+
+```
+
+
+
+Now let's do some charts using just properties_value
+
+
+```{r}
+
+pv1 <- properties_value %>% select(Property, TotalValueBUSD) %>% filter(TotalValueBUSD>20000) %>% arrange(desc(TotalValueBUSD))
+
+pv1
+
+
+```
+
+
+K. Let's chart
+
+```{r}
+
+ggplot(pv1, aes(x=reorder(Property,TotalValueBUSD), y=TotalValueBUSD)) +
+  geom_bar(stat="identity") +
+  coord_flip()
+
+
+
+```
+
